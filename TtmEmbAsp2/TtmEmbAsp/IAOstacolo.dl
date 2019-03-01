@@ -1,0 +1,49 @@
+val(0..8).
+
+%SELEZIONO ADIACENZE
+
+even(X) :- val(X), #mod(X,2,0).
+
+odd(X) :- val(X), not even(X).
+
+adiacente(R1,C1,R2,C2) :- casella(R1,C1), casella(R2,C2), R1=R2, C2=C1+1.
+
+adiacente(R1,C1,R2,C2) :- casella(R1,C1), casella(R2,C2), R1=R2, C2=C1-1.
+
+adiacente(R1,C1,R2,C2) :- even(R1), casella(R1,C1), casella(R2,C2), R2=R1-1, C2=C1-1.
+
+adiacente(R1,C1,R2,C2) :- even(R1), casella(R1,C1), casella(R2,C2), R2=R1-1, C2=C1.
+
+adiacente(R1,C1,R2,C2) :- even(R1), casella(R1,C1), casella(R2,C2), R2=R1+1, C2=C1-1.
+
+adiacente(R1,C1,R2,C2) :- even(R1), casella(R1,C1), casella(R2,C2), R2=R1+1, C2=C1.
+
+adiacente(R1,C1,R2,C2) :- odd(R1), casella(R1,C1), casella(R2,C2), R2=R1-1, C2=C1.
+
+adiacente(R1,C1,R2,C2) :- odd(R1), casella(R1,C1), casella(R2,C2), R2=R1-1, C2=C1+1.
+
+adiacente(R1,C1,R2,C2) :- odd(R1), casella(R1,C1), casella(R2,C2), R2=R1+1, C2=C1.
+
+adiacente(R1,C1,R2,C2) :- odd(R1), casella(R1,C1), casella(R2,C2), R2=R1+1, C2=C1+1.
+
+%CALCOLO SOLUZIONE OTTIMALE
+
+scelgoMuro(X,Y)|nonScelgoMuro(X,Y):-step(X,Y). %GUESS AND CHECK SULLO STEP DA SCEGLIERE
+
+:-not #count{X,Y:scelgoMuro(X,Y)}=1. %ESCLUDO TUTTE LE SOLUZIONI CON A.S. VUOTO
+
+:~stepBordo(X,Y,C),scelgoMuro(X,Y). [C:2] %MINIMIZZO IL PESO DELLA DISTANZA DAL BORDO A LIVELLO 2 
+
+:~stepTopo(X,Y,C),ScelgoMuro(X,Y). [C:1] %MINIMIZZO IL PESO DELLA DISTANZA DAL TOPO A LIVELLO 1
+
+selezionabile(X,Y,X2,Y2)|nonSelezionabile(X,Y,X2,Y2):-adiacente(X,Y,X2,Y2),casella(X2,Y2).
+
+p(X2,Y2):-scelgoMuro(X,Y),selezionabile(X,Y,X2,Y2).
+
+p(X2,Y2):-p(X,Y),selezionabile(X,Y,X2,Y2).
+
+goal(1):-p(X,Y),muro(X,Y).
+
+:-#count{X:goal(X)}<1.
+
+:~selezionabile(X,Y,X2,Y2). [1:3] %CAMMINO MINIMO PER ARRIVARE AD UN ALTRO MURO MINIMIZZATO A LIVELLO 3
